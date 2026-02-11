@@ -11,8 +11,12 @@ This guide walks you through deploying the API Monitor application to production
 ## Step 1: Prepare Your Supabase Project
 
 1. Go to your Supabase project dashboard
-2. Run the database migrations (already included in `scripts/001_create_monitoring_schema.sql`)
-3. Copy your project URL and anon key from Settings > API
+2. Disable email confirmation:
+   - Navigate to **Authentication > Providers > Email**
+   - Toggle off **"Confirm email"** option
+   - This allows users to sign in immediately after signup
+3. Run the database migrations (already included in `scripts/001_create_monitoring_schema.sql`)
+4. Copy your project URL and anon key from Settings > API
 
 ## Step 2: Prepare Environment Variables
 

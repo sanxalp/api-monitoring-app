@@ -178,14 +178,14 @@ Health checks run automatically every 5 minutes via Vercel Crons. Configure in `
 ## Security
 
 - **Row Level Security (RLS)**: All data is protected with RLS policies
-- **Authentication**: Supabase Auth with email confirmation
+- **Authentication**: Supabase Auth with instant access after signup
 - **HTTPS**: All communications encrypted
 - **Rate Limiting**: Implement rate limits on health check endpoints
 - **Secrets**: Use environment variables for sensitive data
 
 ## Monitoring Your Endpoints
 
-1. **Sign Up**: Create an account at `/auth/sign-up`
+1. **Sign Up**: Create an account at `/auth/sign-up` - instant access, no email confirmation required
 2. **Add Endpoints**: Navigate to `/dashboard/endpoints` and add API URLs to monitor
 3. **View Dashboard**: See real-time status on `/dashboard`
 4. **Check Metrics**: View detailed performance data in `/dashboard/metrics`
@@ -218,7 +218,7 @@ pnpm format
 ### Authentication Issues
 - Confirm Supabase credentials are correct
 - Check that auth users table has proper RLS policies
-- Verify email confirmation is working
+- Verify email confirmation is disabled in Supabase Auth settings
 
 ### Database Errors
 - Run database migrations from SQL editor in Supabase
