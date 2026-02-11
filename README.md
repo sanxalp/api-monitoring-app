@@ -238,4 +238,4 @@ MIT License - see LICENSE file for details
 
 ## Support
 
-For issues and feature requests, please open a GitHub issue or contact support at vercel.com/help.
+For issues and feature requests, please open a GitHub issue or contact support.
