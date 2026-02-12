@@ -29,7 +29,7 @@ export default async function DashboardLayout({
   return (
     <div className="flex h-screen bg-background text-foreground">
       {/* Sidebar */}
-      <div className="w-64 border-r border-border bg-muted/30 p-6">
+      <div className="w-64 border-r border-border bg-muted/30 p-6 flex flex-col">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-accent">API Monitor</h1>
           <p className="text-sm text-muted-foreground">Real-time monitoring</p>
@@ -59,7 +59,7 @@ export default async function DashboardLayout({
           </Link>
         </nav>
 
-        <div className="absolute bottom-6 left-6 right-6">
+        <div className="mt-auto pt-6 border-t border-border">
           <div className="mb-4 rounded-lg bg-muted p-4 text-xs">
             <p className="text-muted-foreground">Logged in as</p>
             <p className="font-medium truncate">{user.email}</p>
