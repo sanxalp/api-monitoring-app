@@ -9,31 +9,31 @@ async function checkEndpointHealth(endpointId: string, url: string, userId: stri
   try {
     const response = await fetch(url, { signal: AbortSignal.timeout(10000) })
     const responseTime = Date.now() - startTime
-    const status = response.ok ? 'healthy' : 'degraded'
+    const isHealthy = response.ok
 
     // Save health check result
     await supabase.from('health_checks').insert({
       endpoint_id: endpointId,
-      status,
-      response_time: responseTime,
+      is_healthy: isHealthy,
+      response_time_ms: responseTime,
       status_code: response.status,
-      checked_at: new Date().toISOString(),
+      response_size_bytes: 0,
     })
 
-    return { status, responseTime }
+    return { isHealthy, responseTime }
   } catch (error) {
     const responseTime = Date.now() - startTime
 
     // Save failed health check
     await supabase.from('health_checks').insert({
       endpoint_id: endpointId,
-      status: 'down',
-      response_time: responseTime,
+      is_healthy: false,
+      response_time_ms: responseTime,
       status_code: 0,
-      checked_at: new Date().toISOString(),
+      error_message: error instanceof Error ? error.message : 'Unknown error',
     })
 
-    return { status: 'down', responseTime }
+    return { isHealthy: false, responseTime }
   }
 }
 
@@ -52,38 +52,23 @@ export async function POST(request: Request) {
     // Get all endpoints that need checking
     const { data: endpoints, error } = await supabase
       .from('endpoints')
-      .select('id, url, user_id, check_interval, last_checked')
+      .select('id, url, check_interval_seconds')
 
     if (error) {
       console.error('Error fetching endpoints:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Check endpoints that haven't been checked recently
-    const now = new Date()
+    // Check all endpoints
     const results = []
 
     for (const endpoint of endpoints || []) {
-      const lastChecked = endpoint.last_checked
-        ? new Date(endpoint.last_checked)
-        : new Date(0)
-      const timeSinceCheck = (now.getTime() - lastChecked.getTime()) / 1000
-
-      // Check if it's time to check this endpoint
-      if (timeSinceCheck >= endpoint.check_interval) {
-        const result = await checkEndpointHealth(
-          endpoint.id,
-          endpoint.url,
-          endpoint.user_id
-        )
-        results.push({ endpointId: endpoint.id, ...result })
-
-        // Update last_checked timestamp
-        await supabase
-          .from('endpoints')
-          .update({ last_checked: new Date().toISOString() })
-          .eq('id', endpoint.id)
-      }
+      const result = await checkEndpointHealth(
+        endpoint.id,
+        endpoint.url,
+        ''
+      )
+      results.push({ endpointId: endpoint.id, ...result })
     }
 
     return NextResponse.json({
