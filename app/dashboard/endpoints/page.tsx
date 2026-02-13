@@ -104,11 +104,11 @@ export default function EndpointsPage() {
                 type="number"
                 min="30"
                 max="3600"
-                value={formData.checkInterval}
+                value={formData.checkInterval || ''}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    checkInterval: parseInt(e.target.value),
+                    checkInterval: e.target.value ? parseInt(e.target.value) : 0,
                   })
                 }
                 required
