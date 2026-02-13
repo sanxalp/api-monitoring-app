@@ -39,11 +39,16 @@ export async function GET() {
     const totalChecks = checks.length
     const healthyChecks = checks.filter((c: any) => c.is_healthy).length
 
+    let status = 'unknown'
+    if (latestCheck) {
+      status = latestCheck.is_healthy ? 'healthy' : 'down'
+    }
+
     return {
       id: endpoint.id,
       name: endpoint.name,
       url: endpoint.url,
-      status: latestCheck?.is_healthy ? 'healthy' : 'unhealthy',
+      status,
       uptime: totalChecks > 0 ? (healthyChecks / totalChecks) * 100 : 0,
       avgResponseTime: checks.length > 0
         ? Math.round(checks.reduce((sum: number, c: any) => sum + c.response_time_ms, 0) / checks.length)
