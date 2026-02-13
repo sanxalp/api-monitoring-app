@@ -35,7 +35,7 @@ const statusConfig = {
 }
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
-  const config = statusConfig[status]
+  const config = statusConfig[status] || statusConfig.unknown
 
   return (
     <div
