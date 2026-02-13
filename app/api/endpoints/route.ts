@@ -20,12 +20,11 @@ export async function GET() {
       id,
       name,
       url,
-      check_interval,
+      check_interval_seconds,
       created_at,
-      health_checks(status, response_time, checked_at)
+      health_checks(status_code, response_time_ms, is_healthy, created_at)
     `
     )
-    .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -38,19 +37,19 @@ export async function GET() {
     const checks = endpoint.health_checks || []
     const latestCheck = checks[0]
     const totalChecks = checks.length
-    const healthyChecks = checks.filter((c: any) => c.status === 'healthy').length
+    const healthyChecks = checks.filter((c: any) => c.is_healthy).length
 
     return {
       id: endpoint.id,
       name: endpoint.name,
       url: endpoint.url,
-      status: latestCheck?.status || 'unknown',
+      status: latestCheck?.is_healthy ? 'healthy' : 'unhealthy',
       uptime: totalChecks > 0 ? (healthyChecks / totalChecks) * 100 : 0,
       avgResponseTime: checks.length > 0
-        ? Math.round(checks.reduce((sum: number, c: any) => sum + c.response_time, 0) / checks.length)
+        ? Math.round(checks.reduce((sum: number, c: any) => sum + c.response_time_ms, 0) / checks.length)
         : 0,
-      lastCheck: latestCheck?.checked_at || new Date().toISOString(),
-      checkInterval: endpoint.check_interval,
+      lastCheck: latestCheck?.created_at || new Date().toISOString(),
+      checkInterval: endpoint.check_interval_seconds,
     }
   })
 
@@ -81,10 +80,13 @@ export async function POST(request: Request) {
   const { data, error } = await supabase
     .from('endpoints')
     .insert({
-      user_id: user.id,
       name,
       url,
-      check_interval: checkInterval,
+      check_interval_seconds: checkInterval,
+      method: 'GET',
+      expected_status_code: 200,
+      timeout_seconds: 10,
+      is_active: true,
     })
     .select()
 
