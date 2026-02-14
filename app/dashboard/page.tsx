@@ -23,6 +23,7 @@ export default async function DashboardPage() {
       health_checks(is_healthy)
     `
     )
+    .eq('user_id', user.id)
 
   const stats = {
     total: endpoints?.length || 0,

@@ -25,6 +25,7 @@ export async function GET() {
       health_checks(status_code, response_time_ms, is_healthy, created_at)
     `
     )
+    .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -85,6 +86,7 @@ export async function POST(request: Request) {
   const { data, error } = await supabase
     .from('endpoints')
     .insert({
+      user_id: user.id,
       name,
       url,
       check_interval_seconds: checkInterval,
