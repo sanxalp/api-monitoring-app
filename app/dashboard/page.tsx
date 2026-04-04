@@ -20,7 +20,7 @@ export default async function DashboardPage() {
     .select(
       `
       id,
-      health_checks(status)
+      health_checks(is_healthy, response_time_ms)
     `
     )
     .eq('user_id', user.id)
@@ -29,15 +29,15 @@ export default async function DashboardPage() {
     total: endpoints?.length || 0,
     healthy: endpoints?.filter((e: any) => {
       const latestCheck = e.health_checks?.[0]
-      return latestCheck?.status === 'healthy'
+      return latestCheck?.is_healthy === true && latestCheck?.response_time_ms <= 1000
     }).length || 0,
     degraded: endpoints?.filter((e: any) => {
       const latestCheck = e.health_checks?.[0]
-      return latestCheck?.status === 'degraded'
+      return latestCheck?.is_healthy === true && latestCheck?.response_time_ms > 1000
     }).length || 0,
     down: endpoints?.filter((e: any) => {
       const latestCheck = e.health_checks?.[0]
-      return latestCheck?.status === 'down'
+      return latestCheck?.is_healthy === false
     }).length || 0,
   }
 

@@ -32,10 +32,11 @@ export function MetricsChart({ data, title }: MetricsChartProps) {
           <Line
             type="monotone"
             dataKey="responseTime"
-            stroke="var(--accent)"
-            dot={false}
+            stroke="#2563eb"
+            dot={{ r: 3, fill: '#2563eb', strokeWidth: 0 }}
+            activeDot={{ r: 6, fill: '#1d4ed8' }}
             name="Response Time (ms)"
-            strokeWidth={2}
+            strokeWidth={3}
           />
         </LineChart>
       </ResponsiveContainer>
