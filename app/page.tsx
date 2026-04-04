@@ -22,7 +22,7 @@ export default async function HomePage() {
           <div className="space-y-4">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Activity className="h-10 w-10 text-accent" />
-              <h1 className="text-4xl md:text-5xl font-bold">
+              <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-foreground">
                 API Monitor
               </h1>
             </div>

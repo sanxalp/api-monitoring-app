@@ -31,7 +31,7 @@ export default async function DashboardLayout({
       {/* Sidebar */}
       <div className="w-64 border-r border-border bg-muted/30 p-6 flex flex-col">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-accent">API Monitor</h1>
+          <h1 className="text-2xl font-bold text-foreground">API Monitor</h1>
           <p className="text-sm text-muted-foreground">Real-time monitoring</p>
         </div>
 
