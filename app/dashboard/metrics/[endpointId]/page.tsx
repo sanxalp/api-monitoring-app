@@ -144,9 +144,9 @@ export default function MetricsPage() {
             </p>
           </div>
           <div className="p-4 rounded-lg bg-red-50">
-            <p className="text-sm text-red-700 mb-2">Errors (5xx)</p>
+            <p className="text-sm text-red-700 mb-2">Errors (5xx & Network)</p>
             <p className="text-3xl font-bold text-red-700">
-              {metrics.filter((m) => m.statusCode >= 500).length}
+              {metrics.filter((m) => m.statusCode >= 500 || m.statusCode === 0).length}
             </p>
           </div>
         </div>
