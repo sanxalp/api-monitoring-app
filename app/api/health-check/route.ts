@@ -1,9 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
 // Background job to check all endpoints
-async function checkEndpointHealth(endpointId: string, url: string, userId: string) {
-  const supabase = await createClient()
+async function checkEndpointHealth(endpointId: string, url: string, userId: string, supabaseAdmin: any) {
   const startTime = Date.now()
 
   try {
@@ -12,7 +11,7 @@ async function checkEndpointHealth(endpointId: string, url: string, userId: stri
     const isHealthy = response.ok
 
     // Save health check result
-    await supabase.from('health_checks').insert({
+    await supabaseAdmin.from('health_checks').insert({
       endpoint_id: endpointId,
       is_healthy: isHealthy,
       response_time_ms: responseTime,
@@ -25,7 +24,7 @@ async function checkEndpointHealth(endpointId: string, url: string, userId: stri
     const responseTime = Date.now() - startTime
 
     // Save failed health check
-    await supabase.from('health_checks').insert({
+    await supabaseAdmin.from('health_checks').insert({
       endpoint_id: endpointId,
       is_healthy: false,
       response_time_ms: responseTime,
@@ -38,7 +37,17 @@ async function checkEndpointHealth(endpointId: string, url: string, userId: stri
 }
 
 export async function POST(request: Request) {
-  const supabase = await createClient()
+  // Create an admin client to bypass RLS since cron has no user session
+  const supabaseAdmin = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+    {
+      cookies: {
+        getAll() { return [] },
+        setAll() {}
+      }
+    }
+  )
 
   // Verify the request is authorized (could be a cron job with a secret)
   const authHeader = request.headers.get('authorization')
@@ -50,7 +59,7 @@ export async function POST(request: Request) {
 
   try {
     // Get all endpoints that need checking
-    const { data: endpoints, error } = await supabase
+    const { data: endpoints, error } = await supabaseAdmin
       .from('endpoints')
       .select('id, url, check_interval_seconds')
 
@@ -66,7 +75,8 @@ export async function POST(request: Request) {
       const result = await checkEndpointHealth(
         endpoint.id,
         endpoint.url,
-        ''
+        '',
+        supabaseAdmin
       )
       results.push({ endpointId: endpoint.id, ...result })
     }
