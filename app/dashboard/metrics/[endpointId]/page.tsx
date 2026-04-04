@@ -33,40 +33,14 @@ export default function MetricsPage() {
     const fetchMetrics = async () => {
       setLoading(true)
       try {
-        // In production, this would fetch from an API
-        // For now, generate mock data
-        const now = new Date()
-        const mockData: MetricData[] = []
-        const points = timeRange === '24h' ? 24 : timeRange === '7d' ? 7 * 24 : 30 * 24
-
-        for (let i = points; i > 0; i--) {
-          const time = new Date(now.getTime() - i * 3600000)
-          mockData.push({
-            time: time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-            responseTime: Math.random() * 1000 + 200,
-            statusCode: Math.random() > 0.05 ? 200 : 500,
-          })
-        }
-
-        setMetrics(mockData)
-
-        // Calculate statistics
-        const responseTimes = mockData.map((d) => d.responseTime)
-        const avgResponseTime = Math.round(
-          responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length
-        )
-        const maxResponseTime = Math.round(Math.max(...responseTimes))
-        const minResponseTime = Math.round(Math.min(...responseTimes))
-        const successRate =
-          (mockData.filter((d) => d.statusCode === 200).length / mockData.length) * 100
-
-        setStats({
-          avgResponseTime,
-          maxResponseTime,
-          minResponseTime,
-          totalRequests: mockData.length,
-          successRate: Math.round(successRate),
-        })
+        const response = await fetch(`/api/metrics/${endpointId}?timeRange=${timeRange}`)
+        if (!response.ok) throw new Error('Failed to fetch metrics')
+        const data = await response.json()
+        
+        setMetrics(data.metrics)
+        setStats(data.stats)
+      } catch (error) {
+        console.error('Error fetching metrics:', error)
       } finally {
         setLoading(false)
       }

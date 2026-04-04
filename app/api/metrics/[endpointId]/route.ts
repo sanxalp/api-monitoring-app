@@ -47,8 +47,8 @@ export async function GET(
     .from('health_checks')
     .select('*')
     .eq('endpoint_id', endpointId)
-    .gte('checked_at', thresholdDate)
-    .order('checked_at', { ascending: true })
+    .gte('created_at', thresholdDate)
+    .order('created_at', { ascending: true })
 
   if (error) {
     console.error('Error fetching metrics:', error)
@@ -57,7 +57,7 @@ export async function GET(
 
   // Calculate statistics
   const metrics = healthChecks || []
-  const responseTimes = metrics.map((m: any) => m.response_time)
+  const responseTimes = metrics.map((m: any) => m.response_time_ms || 0)
 
   const stats = {
     avgResponseTime: Math.round(
@@ -65,12 +65,12 @@ export async function GET(
         ? responseTimes.reduce((a: number, b: number) => a + b, 0) / responseTimes.length
         : 0
     ),
-    maxResponseTime: Math.max(...responseTimes, 0),
-    minResponseTime: Math.min(...responseTimes, Infinity),
+    maxResponseTime: responseTimes.length > 0 ? Math.max(...responseTimes) : 0,
+    minResponseTime: responseTimes.length > 0 ? Math.min(...responseTimes) : 0,
     totalRequests: metrics.length,
     successRate: metrics.length > 0
       ? Math.round(
-          (metrics.filter((m: any) => m.status === 'healthy').length / metrics.length) * 100
+          (metrics.filter((m: any) => m.is_healthy).length / metrics.length) * 100
         )
       : 0,
   }
@@ -80,8 +80,8 @@ export async function GET(
     timeRange,
     stats,
     metrics: metrics.map((m: any) => ({
-      time: new Date(m.checked_at).toLocaleString(),
-      responseTime: m.response_time,
+      time: new Date(m.created_at).toLocaleString(),
+      responseTime: m.response_time_ms,
       statusCode: m.status_code,
     })),
   })
