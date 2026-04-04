@@ -72,6 +72,25 @@ export async function POST(request: Request) {
     const results = []
 
     for (const endpoint of endpoints || []) {
+      // Fetch the timestamp of the last check for this endpoint
+      const { data: latestCheck } = await supabaseAdmin
+        .from('health_checks')
+        .select('created_at')
+        .eq('endpoint_id', endpoint.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (latestCheck) {
+        const lastCheckTime = new Date(latestCheck.created_at).getTime()
+        const timeSinceLastCheck = Date.now() - lastCheckTime
+
+        // If the elapsed time is less than the required interval, skip this endpoint
+        if (timeSinceLastCheck < endpoint.check_interval_seconds * 1000) {
+          continue
+        }
+      }
+
       const result = await checkEndpointHealth(
         endpoint.id,
         endpoint.url,
