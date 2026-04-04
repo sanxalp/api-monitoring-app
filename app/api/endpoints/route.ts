@@ -92,6 +92,7 @@ export async function POST(request: Request) {
       expected_status_code: 200,
       timeout_seconds: 10,
       is_active: true,
+      user_id: user.id,
     })
     .select()
 
